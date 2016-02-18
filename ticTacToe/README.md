@@ -7,7 +7,4 @@ If an object gets a loss, then each move for the previous state loses a point.
 The program cleans up the results of the random games, finding the best next move for each board state.
 The AI will be decent after 3 million loops of the dumb bots and their random placing of X and O.
 
-The issue with this is this is my first Ruby program, and I can't use callbacks yet.
-So this means the file can't finish saving before the next load and save, after a certain file size. Therefore it becomes invalid JSON.
-Learn to use callbacks, is the answer.
-
+If you're wondering why I've used separate FILE.open methods for reading and writing to the data file, it is because the file shrinks at times, and truncating the data will leave legacy characters at the end.

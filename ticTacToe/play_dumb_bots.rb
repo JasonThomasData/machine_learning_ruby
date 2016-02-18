@@ -11,7 +11,7 @@ def play_dumb_bots()
     data_file = "dumb_bots_data.json"
     start_time = Time.now
     
-    previous_state = 0 
+    #previous_state = 0 
     while true do
         data_hash = ''
         File.open(data_file,"r") do |json_file|
@@ -24,15 +24,15 @@ def play_dumb_bots()
             a_single_game(players,data_hash,'', show_messages)
         end
         File.open(data_file,"w") do |json_file|
-            #
+            '''
             this_size = json_file.write(data_hash.to_json)
             if this_size < previous_state
-                puts 'smaller size'
+                puts "smaller size " 
             end
             previous_state = this_size
-            #
+            '''
 
-            #json_file.write(data_hash.to_json)
+            json_file.write(data_hash.to_json)
             show_loop_results(data_hash, data_file, start_time)
             
         end
