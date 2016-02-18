@@ -9,18 +9,32 @@ def play_dumb_bots()
     players = [player_x, player_o]
     show_messages = false
     data_file = "dumb_bots_data.json"
-    start_time = Time.now    
+    start_time = Time.now
+    
+    previous_state = 0 
     while true do
-        File.open(data_file,"r+") do |json_file|
+        data_hash = ''
+        File.open(data_file,"r") do |json_file|
+            json_file.sync = true
             data_hash = JSON.parse(json_file.read())
-            init_data_table(data_hash)
-            #Run the game 500 times then save the results to the file.
-            for z in 1..50000 do
-                a_single_game(players,data_hash,'', show_messages)
+        end
+        init_data_table(data_hash)
+        #Run the game 500 times then save the results to the file.
+        for z in 1..5000 do
+            a_single_game(players,data_hash,'', show_messages)
+        end
+        File.open(data_file,"w") do |json_file|
+            #
+            this_size = json_file.write(data_hash.to_json)
+            if this_size < previous_state
+                puts 'smaller size'
             end
-            json_file.rewind
-            json_file.write(data_hash.to_json)
+            previous_state = this_size
+            #
+
+            #json_file.write(data_hash.to_json)
             show_loop_results(data_hash, data_file, start_time)
+            
         end
     end
 end

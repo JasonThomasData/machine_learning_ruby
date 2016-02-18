@@ -94,7 +94,7 @@ class PlayerAI
                 end
             end
             i = spaces_list.sample
-            #'No record exists, picking another'
+            puts 'No record exists, picking another'
         end
         result = [key, i]
         i = i.to_i
