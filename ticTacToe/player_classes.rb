@@ -1,3 +1,5 @@
+require './context_manager'
+
 class PlayerDumb
     def initialize(marker)
         @marker = marker
@@ -6,20 +8,24 @@ class PlayerDumb
     def new_object
         #Each element will represent a turn, with two elements. The first is the game state, and the second is the move.
         @results = []
-        @winner = false
+        @winner_status = nil
     end
     #Used to switch between board states for saving depending on the object's @marker
     def declare_winner()
-        @winner = true
+        @winner_status = true
+    end
+    def declare_loser()
+        @winner_status = false
     end
     def get_winner_status()
-        return @winner
+        return @winner_status
     end
     #Used to add to the json file of board states and frequencies
     def add_result(result)
         @results.push(result)
     end
     def get_result
+        #print @result
         return @results
     end
     #Marker is 'x' or 'o'
@@ -39,9 +45,9 @@ class PlayerDumb
             return i
         end
         i = return_space(board_array)
-        result = [board_array.join(''), i]
         #print result, @marker
         #puts
+        result = [board_array.join(''), i]        
         @results.push(result)
         board_array[i] = @marker
         return board_array
@@ -61,20 +67,24 @@ class PlayerAI
     def new_object
         #Each element will represent a turn, with two elements. The first is the game state, and the second is the move.
         @results = []
-        @winner = false
+        @winner_status = nil
     end
     #Used to switch between board states for saving depending on the object's @marker
     def declare_winner()
-        @winner = true
+        @winner_status = true
+    end
+    def declare_loser()
+        @winner_status = false
     end
     def get_winner_status()
-        return @winner
+        return @winner_status
     end
     #Used to add to the json file of board states and frequencies
     def add_result(result)
         @results.push(result)
     end
     def get_result
+        #print @result
         return @results
     end
     #Marker is 'x' or 'o'
@@ -115,20 +125,24 @@ class PlayerHuman
     def new_object
         #Each element will represent a turn, with two elements. The first is the game state, and the second is the move.
         @results = []
-        @winner = false
+        @winner_status = nil
     end
     #Used to switch between board states for saving depending on the object's @marker
     def declare_winner()
-        @winner = true
+        @winner_status = true
+    end
+    def declare_loser()
+        @winner_status = false
     end
     def get_winner_status()
-        return @winner
+        return @winner_status
     end
     #Used to add to the json file of board states and frequencies
     def add_result(result)
         @results.push(result)
     end
     def get_result
+        #print @result
         return @results
     end
     #Marker is 'x' or 'o'

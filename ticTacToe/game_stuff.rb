@@ -30,6 +30,9 @@ def init_data_table(data_hash)
 end
 
 def access_table(board_state, next_move, data_hash, win_result)
+    #puts win_result
+    #puts board_state
+    #puts next_move
     next_move = next_move.to_s
     if data_hash['games_history'].has_key?(board_state) == false
         data_hash['games_history'][board_state] = {}
@@ -38,47 +41,70 @@ def access_table(board_state, next_move, data_hash, win_result)
         if data_hash['games_history'][board_state].has_key?(next_move) == false
             data_hash['games_history'][board_state][next_move] = 1
         else
-            data_hash['games_history'][board_state][next_move] += 1
+            data_hash['games_history'][board_state][next_move] += 2
         end
-    else
+    elsif win_result == false
         if data_hash['games_history'][board_state].has_key?(next_move) == false
             data_hash['games_history'][board_state][next_move] = 0
         else
-            data_hash['games_history'][board_state][next_move] -= 1
+            data_hash['games_history'][board_state][next_move] -= 2
+        end
+    else
+        if data_hash['games_history'][board_state].has_key?(next_move) == false
+            data_hash['games_history'][board_state][next_move] = 0        
+        else
+            data_hash['games_history'][board_state][next_move] += 1
         end
     end
 end
 
 def save_results(players, data_hash)
-    winner = ''
-    loser = ''
+    def save_drawer(drawer, data_hash)
+        drawer_results = drawer.get_result
+        drawer_results.each{ |result|
+            #This block swaps all characters if the player is o. The data_hash stores all values as the player is x. An enemy is always stored as o, although the player may be o. So, the AI player in a human-AI match should be the x player to make it more simple.
+            parse_state = result[0]
+            parse_move = result[1]
+            if drawer.get_marker == 'o' 
+                parse_state.gsub!(/[x,o]/,'x' => 'o', 'o' => 'x')
+            end
+            access_table(parse_state, parse_move, data_hash, nil)
+        }
+    end    
+    def save_winner(winner, data_hash)
+        winner_results = winner.get_result
+        winner_results.each{ |result|
+            #This block swaps all characters if the player is o. The data_hash stores all values as the player is x. An enemy is always stored as o, although the player may be o. So, the AI player in a human-AI match should be the x player to make it more simple.
+            parse_state = result[0]
+            parse_move = result[1]
+            if winner.get_marker == 'o'
+                parse_state.gsub!(/[x,o]/,'x' => 'o', 'o' => 'x')
+            end
+            access_table(parse_state, parse_move, data_hash, true)
+        }
+    end
+    def save_loser(loser, data_hash)
+        loser_results = loser.get_result
+        loser_results.each { |result|
+            #This block swaps all characters if the player is o. The data_hash stores all values as the player is x. An enemy is always stored as o, although the player may be o. So, the AI player in a human-AI match should be the x player to make it more simple.
+            parse_state = result[0]
+            parse_move = result[1]
+            if loser.get_marker == 'o' 
+                parse_state.gsub!(/[x,o]/,'x' => 'o', 'o' => 'x')
+            end
+            access_table(parse_state, parse_move, data_hash, false)
+        }
+    end
     players.each { |player|
+        #puts player.get_winner_status
         if player.get_winner_status == true
-            winner = player
-        else 
-            loser = player
+            save_winner(player, data_hash)
+        elsif player.get_winner_status == false
+            save_loser(player, data_hash)
+        else
+            save_drawer(player, data_hash)
         end
-    }
-    winner_results = winner.get_result
-    loser_results = loser.get_result
-    winner_results.each{ |result|
-        #This block swaps all characters if the player is o. The data_hash stores all values as the player is x. An enemy is always stored as o, although the player may be o. So, the AI player in a human-AI match should be the x player to make it more simple.
-        parse_state = result[0]
-        parse_move = result[1]
-        if winner.get_marker == 'o'
-            parse_state.gsub!(/[x,o]/,'x' => 'o', 'o' => 'x')
-        end
-        access_table(parse_state, parse_move, data_hash, true)
-    }
-    loser_results.each { |result|
-        #This block swaps all characters if the player is o. The data_hash stores all values as the player is x. An enemy is always stored as o, although the player may be o. So, the AI player in a human-AI match should be the x player to make it more simple.
-        parse_state = result[0]
-        parse_move = result[1]
-        if loser.get_marker == 'o' 
-            parse_state.gsub!(/[x,o]/,'x' => 'o', 'o' => 'x')
-        end              
-        access_table(parse_state, parse_move, data_hash, false)
-    }
+    }    
 end
 
 def show_loop_results(data_hash, data_file, start_time)
@@ -118,20 +144,27 @@ def a_single_game(players,data_hash,clean_AI, show_messages)
             #puts players[j].get_marker + ' wins'
             moves = players[0].get_result.length + players[1].get_result.length
             moves = moves.to_s
-            players[j].declare_winner
+            if j == 0
+                players[0].declare_winner
+                players[1].declare_loser
+            else
+                players[1].declare_winner
+                players[0].declare_loser
+            end
             if show_messages == true
                 end_game_message('win', players[j])
             end
             #Saves the number of moves to get a win
             data_hash['stats'][moves] += 1
-            save_results(players,data_hash)
             #One point for every game played.
             data_hash['stats']['total'] += 1
+            save_results(players,data_hash)
             break
         end
         unless board_string.include? '-'
             data_hash['stats']['total'] += 1
             data_hash['stats']['draw'] += 1
+            save_results(players,data_hash)
             if show_messages == true
                 end_game_message('draw', '')
             end
